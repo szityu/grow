@@ -87,7 +87,7 @@ public class World {
 		b.y = rnd.nextFloat() * mmHeight;
 		b.vx = -10;
 		b.vy = 0;
-		Log.i("game", String.format("Baddy #%d created.", numBaddies));
+//		Log.i("game", String.format("Baddy #%d created.", numBaddies));
 		numBaddies++;
 		return true;
 	}
@@ -98,27 +98,25 @@ public class World {
 				for (int j = i; j < numBaddies-1; j++) {
 					baddies[j].copyFrom(baddies[j+1]);
 				}
-				Log.i("game", String.format("Baddy #%d deleted. %d left", i, numBaddies-1));				
+//				Log.i("game", String.format("Baddy #%d deleted. %d left", i, numBaddies-1));				
 				numBaddies--;
 			}
 		}
 	}
 	
 	public void updatePhysics(long msDeltaT) {
-//		float d = dist(hero.x, hero.y, targetX, targetY);
-//		if (d < EPSILON || d < mmpsHeroSpeed * msDeltaT / 1000) {
-//			//Log.i("game", String.format("<<<< %f, %f, %f", hero.x, hero.y, d));
-//			hero.x = targetX;
-//			hero.y = targetY;
-//		} else {
-//			//Log.i("game", String.format(">>>> %f, %f, %f", hero.x, hero.y, d));
-//			float dx = (targetX - hero.x) / d * mmpsHeroSpeed * msDeltaT / 1000;
-//			float dy = (targetY - hero.y) / d * mmpsHeroSpeed * msDeltaT / 1000;
-//			hero.x += dx;
-//			hero.y += dy;
-//		}
-//		hero.x = targetX;
-//		hero.y = targetY;
+		float d = dist(hero.x, hero.y, targetX, targetY);
+		if (d < EPSILON || d < mmpsHeroSpeed * msDeltaT / 1000) {
+			//Log.i("game", String.format("<<<< %f, %f, %f", hero.x, hero.y, d));
+			hero.x = targetX;
+			hero.y = targetY;
+		} else {
+			//Log.i("game", String.format(">>>> %f, %f, %f", hero.x, hero.y, d));
+			float dx = (targetX - hero.x) / d * mmpsHeroSpeed * msDeltaT / 1000;
+			float dy = (targetY - hero.y) / d * mmpsHeroSpeed * msDeltaT / 1000;
+			hero.x += dx;
+			hero.y += dy;
+		}
 		
 		// move baddies
 		for (int i = 0; i < numBaddies; i++) {

@@ -56,9 +56,7 @@ public class GameSurfaceView extends SurfaceView implements Callback {
 		int action = event.getActionMasked();
 		if (action == MotionEvent.ACTION_DOWN ||
 				action == MotionEvent.ACTION_MOVE) {
-			world.hero.x = event.getX() / world.pixelPerMm;
-			world.hero.y = event.getY() / world.pixelPerMm;
-			//world.setTarget(event.getX(), event.getY());
+			world.setTarget(event.getX(), event.getY());
 			return true;
 		}
 		return super.onTouchEvent(event);
