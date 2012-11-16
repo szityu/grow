@@ -11,8 +11,8 @@ import android.view.SurfaceView;
 
 public class GameSurfaceView extends SurfaceView implements Callback {
 
-	private GameThread gameThread;
-	private World world;
+	public GameThread gameThread;
+	public World world;
 	
 	public GameSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);

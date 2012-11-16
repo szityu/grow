@@ -3,6 +3,7 @@ package com.szityu.grow;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Paint.Style;
+import android.util.Log;
 import android.view.SurfaceHolder;
 
 import com.szityu.grow.World.Baddy;
@@ -11,11 +12,17 @@ public class GameThread extends Thread {
 
 	public boolean isRunning = false;
 	public SurfaceHolder surfaceHolder;
-	public World world; 
+	public World world;
 
+	public MainActivity parentActivity;
+	public DebugStats statsUpdateTime;
+	public Timer debugInfoUpdateTimer;
+	private float fps;
 
 	public GameThread() {
 		super();
+		statsUpdateTime = new DebugStats(0.01f);
+		debugInfoUpdateTimer = new Timer(1000);
 	}
 
 	@Override
@@ -25,9 +32,10 @@ public class GameThread extends Thread {
 		while (isRunning) {
 			previous = now;
 			now = System.currentTimeMillis();
-//			Log.i("game", String.format("dt: %d ms", now-startTime));
+			// Log.i("game", String.format("dt: %d ms", now-startTime));
 			world.updatePhysics(now - previous);
 			updateGraphics();
+			updateDebugInfo(now - previous);
 		}
 	}
 
@@ -54,17 +62,38 @@ public class GameThread extends Thread {
 
 		paint.setColor(android.graphics.Color.GREEN);
 		paint.setStyle(Style.STROKE);
-		c.drawRect(0f, 0f, world.mmWidth * world.pixelPerMm - 1, world.mmHeight * world.pixelPerMm - 1, paint);
+		c.drawRect(0f, 0f, world.mmWidth * world.pixelPerMm - 1, world.mmHeight
+				* world.pixelPerMm - 1, paint);
 
 		paint.setColor(android.graphics.Color.WHITE);
 		paint.setStyle(Style.FILL);
-		c.drawCircle(world.hero.x * world.pixelPerMm, world.hero.y * world.pixelPerMm, 50, paint);
-		
+		c.drawCircle(world.hero.x * world.pixelPerMm, world.hero.y
+				* world.pixelPerMm, 50, paint);
+
 		paint.setColor(android.graphics.Color.MAGENTA);
 		paint.setStyle(Style.FILL);
 		for (int i = 0; i < world.numBaddies; i++) {
 			Baddy b = world.baddies[i];
-			c.drawCircle(b.x * world.pixelPerMm, b.y * world.pixelPerMm, b.size * world.pixelPerMm, paint);
+			c.drawCircle(b.x * world.pixelPerMm, b.y * world.pixelPerMm, b.size
+					* world.pixelPerMm, paint);
+		}
+	}
+
+	private void updateDebugInfo(long msDeltaT) {
+		statsUpdateTime.addData(msDeltaT);
+		debugInfoUpdateTimer.update(msDeltaT);
+		fps = statsUpdateTime.avg > 0 ? 1000 / statsUpdateTime.avg : 0;
+		if (debugInfoUpdateTimer.triggered()) {
+			final String debugText = String.format("fps: %.1f", fps);
+			Log.i("game", debugText);
+			if (parentActivity.debugTextView != null &&
+					parentActivity.getResources().getBoolean(R.bool.onscreen_debug_info)) {
+				parentActivity.runOnUiThread(new Runnable() {
+					public void run() {
+						parentActivity.debugTextView.setText(debugText);
+					}
+				});
+			}
 		}
 	}
 }
