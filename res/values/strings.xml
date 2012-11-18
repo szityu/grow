@@ -3,6 +3,5 @@
     <string name="hello_world">Hello world!</string>
     <string name="menu_settings">Settings</string>
     <string name="title_activity_main">MainActivity</string>
-    <string name="menu_debug_unchecked">Debug info</string>
-    <string name="menu_debug_checked">\u2714 Debug info</string>
+    <string name="menu_debug">Debug info</string>
 </resources>

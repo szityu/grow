@@ -53,8 +53,6 @@ public class MainActivity extends Activity {
 	@Override
 	public boolean onPrepareOptionsMenu(Menu menu) {
 		MenuItem item = menu.findItem(R.id.menu_debug);
-		item.setTitle(showDebugInfo ? 
-				R.string.menu_debug_checked : R.string.menu_debug_unchecked);
 		item.setChecked(showDebugInfo);
 		return true;
 	}
