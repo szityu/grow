@@ -5,6 +5,7 @@ import android.graphics.Paint;
 import android.graphics.Paint.Style;
 import android.util.Log;
 import android.view.SurfaceHolder;
+import android.view.View;
 
 import com.szityu.grow.World.Baddy;
 
@@ -21,7 +22,7 @@ public class GameThread extends Thread {
 
 	public GameThread() {
 		super();
-		statsUpdateTime = new DebugStats(0.01f);
+		statsUpdateTime = new DebugStats(0.05f);
 		debugInfoUpdateTimer = new Timer(1000);
 	}
 
@@ -87,7 +88,8 @@ public class GameThread extends Thread {
 			final String debugText = String.format("fps: %.1f", fps);
 			Log.i("game", debugText);
 			if (parentActivity.debugTextView != null &&
-					parentActivity.getResources().getBoolean(R.bool.onscreen_debug_info)) {
+					parentActivity.showDebugInfo) {
+				// view object must be set from the UI thread.
 				parentActivity.runOnUiThread(new Runnable() {
 					public void run() {
 						parentActivity.debugTextView.setText(debugText);
