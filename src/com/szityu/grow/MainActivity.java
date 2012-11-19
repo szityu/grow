@@ -23,11 +23,43 @@ public class MainActivity extends Activity {
 	    setContentView(R.layout.activity_main);
 		surfaceView = (GameSurfaceView) findViewById(R.id.surfaceView1);
 		debugTextView = (TextView) findViewById(R.id.debugTextView);
+		surfaceView.gameThread = new GameThread();
+        surfaceView.gameThread.start();
+        surfaceView.gameThread.surfaceHolder = surfaceView.getHolder();
+        surfaceView.gameThread.isRunning = true;
+        surfaceView.gameThread.world = surfaceView.world;
+
 		surfaceView.gameThread.parentActivity = this;
 
 		showDebugInfo = false;
 		// Views on surfaceView have buggy behavior. This must be GONE, not INVISIBLE, otherwise it will never reappear.
 		debugTextView.setVisibility(View.GONE);
+	}
+
+	@Override
+	protected void onPause() {
+		surfaceView.gameThread.onPause();
+		super.onPause();
+	}
+
+	@Override
+	protected void onResume() {
+		surfaceView.gameThread.onResume();
+		super.onResume();
+	}
+
+	@Override
+	protected void onDestroy() {
+		surfaceView.gameThread.isRunning = false;
+        boolean retry = true;
+        while (retry) {
+            try {
+            	surfaceView.gameThread.join();
+                retry = false;
+            } catch (InterruptedException e) {
+            }
+        }
+		super.onDestroy();
 	}
 
 	@Override

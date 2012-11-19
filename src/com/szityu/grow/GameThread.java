@@ -12,6 +12,7 @@ import com.szityu.grow.World.Baddy;
 public class GameThread extends Thread {
 
 	public boolean isRunning = false;
+	public boolean isPaused = false;
 	public SurfaceHolder surfaceHolder;
 	public World world;
 
@@ -19,24 +20,42 @@ public class GameThread extends Thread {
 	public DebugStats statsUpdateTime;
 	public Timer debugInfoUpdateTimer;
 	private float fps;
+	private long currentTime;
+	private long previousTime;
 
 	public GameThread() {
 		super();
 		statsUpdateTime = new DebugStats(0.05f);
 		debugInfoUpdateTimer = new Timer(1000);
 	}
-
+	
+	// Not an event handler of Thread, just a propagated function from the activity.
+	public void onPause() {
+		isPaused = true;
+		Log.d("game", String.format("Paused."));
+	}
+	
+	// Not an event handler of Thread, just a propagated function from the activity.
+	public void onResume() {
+		isPaused = false;		
+		currentTime = System.currentTimeMillis();
+		Log.d("game", String.format("Resumed."));
+	}
+	
 	@Override
 	public void run() {
-		long now = System.currentTimeMillis();
-		long previous;
+		currentTime = System.currentTimeMillis();
 		while (isRunning) {
-			previous = now;
-			now = System.currentTimeMillis();
-			// Log.i("game", String.format("dt: %d ms", now-startTime));
-			world.updatePhysics(now - previous);
-			updateGraphics();
-			updateDebugInfo(now - previous);
+			if (isPaused) {
+				yield();
+			} else {
+				previousTime = currentTime;
+				currentTime = System.currentTimeMillis();
+				// Log.i("game", String.format("dt: %d ms", now-startTime));
+				world.updatePhysics(currentTime - previousTime);
+				updateGraphics();
+				updateDebugInfo(currentTime - previousTime);
+			}
 		}
 	}
 

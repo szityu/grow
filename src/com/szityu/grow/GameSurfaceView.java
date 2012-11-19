@@ -3,6 +3,7 @@ package com.szityu.grow;
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
@@ -16,12 +17,15 @@ public class GameSurfaceView extends SurfaceView implements Callback {
 	
 	public GameSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-		gameThread = new GameThread();
-		world = new World();
-		gameThread.surfaceHolder = getHolder();
+//		gameThread = new GameThread();
+//		gameThread.surfaceHolder = getHolder();
+//		gameThread.isRunning = true;
+
+        world = new World();
 		getHolder().addCallback(this);
-		gameThread.world = world;
+//		gameThread.world = world;
 		
+//        gameThread.start();
 		setFocusable(true);
  	}
 
@@ -34,21 +38,10 @@ public class GameSurfaceView extends SurfaceView implements Callback {
 
 	@Override
 	public void surfaceCreated(SurfaceHolder arg0) {
-		gameThread.isRunning = true;
-        gameThread.start();
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder arg0) {
-    	gameThread.isRunning = false;
-        boolean retry = true;
-        while (retry) {
-            try {
-            	gameThread.join();
-                retry = false;
-            } catch (InterruptedException e) {
-            }
-        }
 	}
 
 	@Override
