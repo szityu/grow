@@ -10,7 +10,10 @@ import android.view.Window;
 import android.widget.TextView;
 
 public class MainActivity extends Activity {
+	public GameThread gameThread;
+	public World world;
 
+	
 	private GameSurfaceView surfaceView;
 	public TextView debugTextView;
 	public boolean showDebugInfo;
@@ -21,40 +24,43 @@ public class MainActivity extends Activity {
 		// Unfortunately, we need the Action bar for the menu button.
 		// requestWindowFeature(Window.FEATURE_NO_TITLE);
 	    setContentView(R.layout.activity_main);
+	    
 		surfaceView = (GameSurfaceView) findViewById(R.id.surfaceView1);
 		debugTextView = (TextView) findViewById(R.id.debugTextView);
-		surfaceView.gameThread = new GameThread();
-        surfaceView.gameThread.start();
-        surfaceView.gameThread.surfaceHolder = surfaceView.getHolder();
-        surfaceView.gameThread.isRunning = true;
-        surfaceView.gameThread.world = surfaceView.world;
+		gameThread = new GameThread();
+        gameThread.surfaceHolder = surfaceView.getHolder();
+        gameThread.isRunning = true;
+		gameThread.parentActivity = this;
 
-		surfaceView.gameThread.parentActivity = this;
+        world = new World();
+        gameThread.world = world;
+        surfaceView.world = world;
 
 		showDebugInfo = false;
 		// Views on surfaceView have buggy behavior. This must be GONE, not INVISIBLE, otherwise it will never reappear.
 		debugTextView.setVisibility(View.GONE);
+        gameThread.start();
 	}
 
 	@Override
 	protected void onPause() {
-		surfaceView.gameThread.onPause();
+		gameThread.onPause();
 		super.onPause();
 	}
 
 	@Override
 	protected void onResume() {
-		surfaceView.gameThread.onResume();
+		gameThread.onResume();
 		super.onResume();
 	}
 
 	@Override
 	protected void onDestroy() {
-		surfaceView.gameThread.isRunning = false;
+		gameThread.isRunning = false;
         boolean retry = true;
         while (retry) {
             try {
-            	surfaceView.gameThread.join();
+            	gameThread.join();
                 retry = false;
             } catch (InterruptedException e) {
             }

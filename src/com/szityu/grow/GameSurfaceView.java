@@ -11,21 +11,11 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
 public class GameSurfaceView extends SurfaceView implements Callback {
-
-	public GameThread gameThread;
 	public World world;
 	
 	public GameSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
-//		gameThread = new GameThread();
-//		gameThread.surfaceHolder = getHolder();
-//		gameThread.isRunning = true;
-
-        world = new World();
-		getHolder().addCallback(this);
-//		gameThread.world = world;
-		
-//        gameThread.start();
+		getHolder().addCallback(this);		
 		setFocusable(true);
  	}
 
