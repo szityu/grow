@@ -45,31 +45,35 @@ public class World {
 			baddies[i] = new Baddy();
 		}
 		baddyCreationTimer = new Timer(2000);
-		numBaddies = 0;
 		rnd = new Random();
-		targetX = hero.x;
-		targetY = hero.y;
-		mmpsHeroSpeed = 5000.0f;		
-		
-		control_locked = false;
 	}
 	
+	// Start a new game, initialize the world
+	public void startGame() {
+		numBaddies = 0;
+		heroHandle.setCoord(30, 20);
+		hero.size = 3.0f;
+		
+		mmpsHeroSpeed = 5000.0f;				
+		control_locked = false;
+	}
+
 	public class Hero {
 		
+		// x and y coordinates are only set through the heroHandle.
 		public float x;
 		public float y;
+		public float size;
 		
 		public Hero() {
-			x = 40;
-			y = 30;
+			size = 3.0f;
 		}
 		
 		public void draw(Canvas c) {
 			// draw hero
 			paint.setColor(android.graphics.Color.WHITE);
 			paint.setStyle(Style.FILL);
-			c.drawCircle(x * pixelPerMm, y
-					* pixelPerMm, 50, paint);
+			c.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
 		}
 		
 	}
@@ -84,7 +88,7 @@ public class World {
 		
 		public HeroHandle(Hero hero) {
 			this.hero = hero;
-			setCoord(30, 20);
+			setCoord(0, 0);
 		}
 		
 		public void setCoord(float mmX, float mmY) {
@@ -162,7 +166,7 @@ public class World {
 		}
 		Baddy b = baddies[numBaddies];
 		
-		b.size = 5 + 2.5f * (rnd.nextFloat() - 0.5f);
+		b.size = hero.size * (rnd.nextFloat() + 0.7f);
 		b.x = mmWidth + b.size;
 		b.y = rnd.nextFloat() * mmHeight;
 		b.vx = -10;
