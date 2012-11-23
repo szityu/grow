@@ -15,6 +15,7 @@ public class World {
 	private Random rnd;
 	
 	public Hero hero;
+	public HeroHandle heroHandle;
 	public Baddy[] baddies;
 	public Timer baddyCreationTimer;
 	public int numBaddies;
@@ -24,16 +25,21 @@ public class World {
 	public float mmpsHeroSpeed;
 	public float mmWidth;
 	public float mmHeight;
+	
+	
+	// quantities for drawing
 	public float pixelPerMm;
-	// pixel quantities, for drawing
 	float pxpsHeroSpeed;
 	float pxMaxX;
 	float pxMaxY;
-	
 	Paint paint = new Paint();
 
+	// controller variables
+	boolean control_locked;
+	
 	public World() {
 		hero = new Hero();
+		heroHandle = new HeroHandle(hero);
 		baddies = new Baddy[MAX_BADDIES];
 		for (int i = 0; i < MAX_BADDIES; i++) {
 			baddies[i] = new Baddy();
@@ -45,10 +51,10 @@ public class World {
 		targetY = hero.y;
 		mmpsHeroSpeed = 5000.0f;		
 		
+		control_locked = false;
 	}
 	
 	public class Hero {
-		public final static int HANDLE_X_OFFSET = 20;
 		
 		public float x;
 		public float y;
@@ -64,10 +70,44 @@ public class World {
 			paint.setStyle(Style.FILL);
 			c.drawCircle(x * pixelPerMm, y
 					* pixelPerMm, 50, paint);
+		}
+		
+	}
+	
+	public class HeroHandle {
+		public final static int HANDLE_X_OFFSET = 20;
+		public final static int HANDLE_RADIUS = 5;
+
+		private float x;
+		private float y;
+		public Hero hero;
+		
+		public HeroHandle(Hero hero) {
+			this.hero = hero;
+			setCoord(30, 20);
+		}
+		
+		public void setCoord(float mmX, float mmY) {
+			x = mmX;
+			y = mmY;
+			hero.x = x + HANDLE_X_OFFSET;
+			hero.y = y;
+		}
+		
+		public boolean isWithin(float mmX, float mmY) {
+			if (dist(mmX, mmY, x, y) < HANDLE_RADIUS) {
+				return true;
+			}
+			return false;
+		}
+
+		public void draw(Canvas c) {
+			// draw hero handle
 			paint.setColor(android.graphics.Color.YELLOW);
 			paint.setStyle(Style.STROKE);
-			c.drawCircle((x - HANDLE_X_OFFSET) * pixelPerMm, y * pixelPerMm, 5 * pixelPerMm, paint);
+			c.drawCircle(x * pixelPerMm, y * pixelPerMm, HANDLE_RADIUS * pixelPerMm, paint);
 		}
+
 	}
 	
 	public class Baddy {
@@ -109,6 +149,7 @@ public class World {
 		c.drawRect(0f, 0f, mmWidth * pixelPerMm - 1, mmHeight * pixelPerMm - 1, paint);
 
 		hero.draw(c);		
+		heroHandle.draw(c);
 		for (int i = 0; i < numBaddies; i++) {
 			baddies[i].draw(c);
 		}
@@ -144,18 +185,20 @@ public class World {
 	}
 	
 	public void updatePhysics(long msDeltaT) {
-		float d = dist(hero.x, hero.y, targetX, targetY);
-		if (d < EPSILON || d < mmpsHeroSpeed * msDeltaT / 1000) {
-			//Log.i("game", String.format("<<<< %f, %f, %f", hero.x, hero.y, d));
-			hero.x = targetX;
-			hero.y = targetY;
-		} else {
-			//Log.i("game", String.format(">>>> %f, %f, %f", hero.x, hero.y, d));
-			float dx = (targetX - hero.x) / d * mmpsHeroSpeed * msDeltaT / 1000;
-			float dy = (targetY - hero.y) / d * mmpsHeroSpeed * msDeltaT / 1000;
-			hero.x += dx;
-			hero.y += dy;
-		}
+//		float d = dist(hero.x, hero.y, targetX, targetY);
+//		if (d < EPSILON || d < mmpsHeroSpeed * msDeltaT / 1000) {
+//			//Log.i("game", String.format("<<<< %f, %f, %f", hero.x, hero.y, d));
+//			hero.x = targetX;
+//			hero.y = targetY;
+//		} else {
+//			//Log.i("game", String.format(">>>> %f, %f, %f", hero.x, hero.y, d));
+//			float dx = (targetX - hero.x) / d * mmpsHeroSpeed * msDeltaT / 1000;
+//			float dy = (targetY - hero.y) / d * mmpsHeroSpeed * msDeltaT / 1000;
+//			hero.x += dx;
+//			hero.y += dy;
+//		}
+
+//		heroHandle.setCoord(targetX, targetY);
 		
 		// move baddies
 		for (int i = 0; i < numBaddies; i++) {
@@ -184,6 +227,25 @@ public class World {
 		pxpsHeroSpeed = mmpsHeroSpeed * pixelPerMm;  // calculated from pixel density, do not modify directly.
 		addBaddy();
 
+	}
+
+	public void actionClick(float rawX, float rawY) {
+		float mmX = rawX / pixelPerMm;
+		float mmY = rawY / pixelPerMm;
+		if (heroHandle.isWithin(mmX, mmY)) {
+			control_locked = true;
+			heroHandle.setCoord(mmX, mmY);
+		}
+	}
+	
+	public void actionRelease() {
+		control_locked = false;
+	}
+	
+	public void actionMoveTo(float rawX, float rawY) {
+		if (control_locked) {
+			heroHandle.setCoord(rawX / pixelPerMm, rawY / pixelPerMm);
+		}
 	}
 	
 	public void setTarget(float tx, float ty) {

@@ -37,9 +37,15 @@ public class GameSurfaceView extends SurfaceView implements Callback {
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
 		int action = event.getActionMasked();
-		if (action == MotionEvent.ACTION_DOWN ||
-				action == MotionEvent.ACTION_MOVE) {
-			world.setTarget(event.getX(), event.getY());
+		if (action == MotionEvent.ACTION_DOWN) {
+			world.actionClick(event.getX(), event.getY());
+			return true;
+		} else if (action == MotionEvent.ACTION_MOVE) {
+			world.actionMoveTo(event.getX(), event.getY());
+			return true;			
+		} else if (action == MotionEvent.ACTION_UP ||
+				action == MotionEvent.ACTION_CANCEL) {
+			world.actionRelease();
 			return true;
 		}
 		return super.onTouchEvent(event);
