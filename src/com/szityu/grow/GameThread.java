@@ -65,7 +65,7 @@ public class GameThread extends Thread {
 			c = surfaceHolder.lockCanvas(null);
 			synchronized (surfaceHolder) {
 				if (c != null) {
-					updateCanvas(c);
+					world.draw(c);
 				}
 			}
 		} finally {
@@ -74,29 +74,6 @@ public class GameThread extends Thread {
 			}
 		}
 
-	}
-
-	private void updateCanvas(Canvas c) {
-		c.drawRGB(50, 50, 50);
-		Paint paint = new Paint();
-
-		paint.setColor(android.graphics.Color.GREEN);
-		paint.setStyle(Style.STROKE);
-		c.drawRect(0f, 0f, world.mmWidth * world.pixelPerMm - 1, world.mmHeight
-				* world.pixelPerMm - 1, paint);
-
-		paint.setColor(android.graphics.Color.WHITE);
-		paint.setStyle(Style.FILL);
-		c.drawCircle(world.hero.x * world.pixelPerMm, world.hero.y
-				* world.pixelPerMm, 50, paint);
-
-		paint.setColor(android.graphics.Color.MAGENTA);
-		paint.setStyle(Style.FILL);
-		for (int i = 0; i < world.numBaddies; i++) {
-			Baddy b = world.baddies[i];
-			c.drawCircle(b.x * world.pixelPerMm, b.y * world.pixelPerMm, b.size
-					* world.pixelPerMm, paint);
-		}
 	}
 
 	private void updateDebugInfo(long msDeltaT) {

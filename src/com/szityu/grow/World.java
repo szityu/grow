@@ -2,6 +2,9 @@ package com.szityu.grow;
 
 import java.util.Random;
 
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Paint.Style;
 import android.util.Log;
 
 
@@ -27,6 +30,8 @@ public class World {
 	float pxMaxX;
 	float pxMaxY;
 	
+	Paint paint = new Paint();
+
 	public World() {
 		hero = new Hero();
 		baddies = new Baddy[MAX_BADDIES];
@@ -43,12 +48,25 @@ public class World {
 	}
 	
 	public class Hero {
+		public final static int HANDLE_X_OFFSET = 20;
+		
 		public float x;
 		public float y;
 		
 		public Hero() {
-			x = 10;
+			x = 40;
 			y = 30;
+		}
+		
+		public void draw(Canvas c) {
+			// draw hero
+			paint.setColor(android.graphics.Color.WHITE);
+			paint.setStyle(Style.FILL);
+			c.drawCircle(x * pixelPerMm, y
+					* pixelPerMm, 50, paint);
+			paint.setColor(android.graphics.Color.YELLOW);
+			paint.setStyle(Style.STROKE);
+			c.drawCircle((x - HANDLE_X_OFFSET) * pixelPerMm, y * pixelPerMm, 5 * pixelPerMm, paint);
 		}
 	}
 	
@@ -69,12 +87,33 @@ public class World {
 			vy = b.vy;
 		}
 		
+		public void draw(Canvas c) {
+			// draw baddy
+			paint.setColor(android.graphics.Color.MAGENTA);
+			paint.setStyle(Style.FILL);
+			c.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
+		}
+		
 		@Override
 		public String toString() {
 			return "Baddy [x=" + x + ", y=" + y + ", size=" + size + "]";
 		}
 	}
 	
+	public void draw(Canvas c) {
+		// draw world
+		c.drawRGB(50, 50, 50);
+
+		paint.setColor(android.graphics.Color.GREEN);
+		paint.setStyle(Style.STROKE);
+		c.drawRect(0f, 0f, mmWidth * pixelPerMm - 1, mmHeight * pixelPerMm - 1, paint);
+
+		hero.draw(c);		
+		for (int i = 0; i < numBaddies; i++) {
+			baddies[i].draw(c);
+		}
+	}
+
 	public boolean addBaddy() {
 		if (numBaddies >= MAX_BADDIES) {
 			Log.w("game", "Too many baddies, cannot add more.");
