@@ -40,7 +40,7 @@ public class MainActivity extends Activity {
 		// Views on surfaceView have buggy behavior. This must be GONE, not INVISIBLE, otherwise it will never reappear.
 		debugTextView.setVisibility(View.GONE);
         gameThread.start();
-        world.startGame();
+        //world.startGame();
 	}
 
 	@Override

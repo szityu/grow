@@ -25,7 +25,7 @@ public class World {
 	public float mmpsHeroSpeed;
 	public float mmWidth;
 	public float mmHeight;
-	
+	public boolean metrics_initialized;
 	
 	// quantities for drawing
 	public float pixelPerMm;
@@ -46,12 +46,15 @@ public class World {
 		}
 		baddyCreationTimer = new Timer(2000);
 		rnd = new Random();
+		metrics_initialized = false;
+		startGame();
 	}
 	
 	// Start a new game, initialize the world
 	public void startGame() {
+		Log.i("game", "New game started.");
 		numBaddies = 0;
-		heroHandle.setCoord(30, 20);
+		setHeroCoord(30, 20);
 		hero.size = 3.0f;
 		
 		mmpsHeroSpeed = 5000.0f;				
@@ -189,6 +192,8 @@ public class World {
 	}
 	
 	public void updatePhysics(long msDeltaT) {
+		if (!metrics_initialized) return;
+		
 //		float d = dist(hero.x, hero.y, targetX, targetY);
 //		if (d < EPSILON || d < mmpsHeroSpeed * msDeltaT / 1000) {
 //			//Log.i("game", String.format("<<<< %f, %f, %f", hero.x, hero.y, d));
@@ -202,7 +207,12 @@ public class World {
 //			hero.y += dy;
 //		}
 
-//		heroHandle.setCoord(targetX, targetY);
+		targetX = Math.min(mmWidth - HeroHandle.HANDLE_X_OFFSET - hero.size - 0.1f, targetX);
+		targetX = Math.max(0, targetX);
+		targetY = Math.min(mmHeight, targetY);
+		targetY = Math.max(0, targetY);
+		
+		heroHandle.setCoord(targetX, targetY);
 		
 		// move baddies
 		for (int i = 0; i < numBaddies; i++) {
@@ -223,14 +233,19 @@ public class World {
 		return android.util.FloatMath.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
 	}
 	
+	private void setHeroCoord(float mmX, float mmY) {
+		targetX = mmX;
+		targetY = mmY;
+		heroHandle.setCoord(mmX, mmY);
+	}
+	
 	public void setMetrics(float mmWidth, float mmHeight, float pixelPerMm) {
 		this.mmWidth = mmWidth;
 		this.mmHeight = mmHeight;
 		this.pixelPerMm = pixelPerMm;
 		
 		pxpsHeroSpeed = mmpsHeroSpeed * pixelPerMm;  // calculated from pixel density, do not modify directly.
-		addBaddy();
-
+		metrics_initialized = true;
 	}
 
 	public void actionClick(float rawX, float rawY) {
@@ -238,7 +253,7 @@ public class World {
 		float mmY = rawY / pixelPerMm;
 		if (heroHandle.isWithin(mmX, mmY)) {
 			control_locked = true;
-			heroHandle.setCoord(mmX, mmY);
+			setTarget(rawX / pixelPerMm, rawY / pixelPerMm);
 		}
 	}
 	
@@ -248,12 +263,12 @@ public class World {
 	
 	public void actionMoveTo(float rawX, float rawY) {
 		if (control_locked) {
-			heroHandle.setCoord(rawX / pixelPerMm, rawY / pixelPerMm);
+			setTarget(rawX / pixelPerMm, rawY / pixelPerMm);
 		}
 	}
 	
 	public void setTarget(float tx, float ty) {
-		targetX = tx / pixelPerMm;
-		targetY = ty / pixelPerMm;
+		targetX = tx;
+		targetY = ty;
 	}
 }
