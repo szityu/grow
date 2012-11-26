@@ -72,6 +72,18 @@ public class World {
 			size = 3.0f;
 		}
 		
+		public boolean isTouching(Baddy b) {
+			return (dist(b.x, b.y, x, y) < b.size + size);
+		}
+		
+		public void eventEatsBaddy() {
+			size *= 1.1f;
+		}
+
+		public void eventGetsEaten() {
+			size /= 1.1f;
+		}
+
 		public void draw(Canvas c) {
 			// draw hero
 			paint.setColor(android.graphics.Color.WHITE);
@@ -126,14 +138,24 @@ public class World {
 		public float vx;
 		public float vy;
 		
+		public boolean beingEaten;
+		
 		public void copyFrom(Baddy b) {
 			x = b.x;
 			y = b.y;
 			size = b.size;
 			vx = b.vx;
 			vy = b.vy;
+			beingEaten = b.beingEaten;
 		}
 		
+		public void eventEatsHero() {
+		}
+
+		public void eventGetsEaten() {
+			beingEaten = true;
+		}
+
 		public void draw(Canvas c) {
 			// draw baddy
 			paint.setColor(android.graphics.Color.MAGENTA);
@@ -174,6 +196,7 @@ public class World {
 		b.y = rnd.nextFloat() * mmHeight;
 		b.vx = -10;
 		b.vy = 0;
+		b.beingEaten = false;
 //		Log.i("game", String.format("Baddy #%d created.", numBaddies));
 		numBaddies++;
 		return true;
@@ -181,7 +204,8 @@ public class World {
 	
 	public void killGoneBaddies() {
 		for (int i = numBaddies - 1; i >= 0; i--) {
-			if (baddies[i].x < -baddies[i].size) {
+			if ((baddies[i].x < -baddies[i].size) 
+					|| baddies[i].beingEaten) {
 				for (int j = i; j < numBaddies-1; j++) {
 					baddies[j].copyFrom(baddies[j+1]);
 				}
@@ -219,6 +243,20 @@ public class World {
 			Baddy b = baddies[i];
 			b.x += b.vx * msDeltaT / 1000;
 			b.y += b.vy * msDeltaT / 1000;
+		}
+		
+		// Collision handling.
+		for (int i = 0; i < numBaddies; i++) {
+			Baddy b = baddies[i];
+			if (hero.isTouching(b)) {
+				if ((hero.size > b.size) && !b.beingEaten) {
+					hero.eventEatsBaddy();
+					b.eventGetsEaten();
+				} else {
+					hero.eventGetsEaten();
+					b.eventEatsHero();
+				}
+			}
 		}
 		
 		killGoneBaddies();
