@@ -52,7 +52,7 @@ public class GameThread extends Thread {
 				previousTime = currentTime;
 				currentTime = System.currentTimeMillis();
 				// Log.i("game", String.format("dt: %d ms", now-startTime));
-				world.updatePhysics(currentTime - previousTime);
+				world.update(currentTime - previousTime);
 				updateGraphics();
 				updateDebugInfo(currentTime - previousTime);
 			}

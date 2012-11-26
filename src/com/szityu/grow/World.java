@@ -139,6 +139,10 @@ public class World {
 		public float vy;
 		
 		public boolean beingEaten;
+		public boolean dead;
+		private static final float DEAD_AT_SIZE = 0.5f;
+
+		private float vShrink;
 		
 		public void copyFrom(Baddy b) {
 			x = b.x;
@@ -147,6 +151,7 @@ public class World {
 			vx = b.vx;
 			vy = b.vy;
 			beingEaten = b.beingEaten;
+			dead = b.dead;
 		}
 		
 		public void eventEatsHero() {
@@ -154,11 +159,24 @@ public class World {
 
 		public void eventGetsEaten() {
 			beingEaten = true;
+			vShrink = size / 0.3f;
 		}
 
+		public void update(long msDeltaT) {
+			if (beingEaten) {
+				size -= vShrink * msDeltaT / 1000;
+				if (size < DEAD_AT_SIZE) {
+					dead = true;
+				}
+			}
+		}
+		
 		public void draw(Canvas c) {
 			// draw baddy
 			paint.setColor(android.graphics.Color.MAGENTA);
+			if (beingEaten) {
+				paint.setColor(android.graphics.Color.RED);				
+			}
 			paint.setStyle(Style.FILL);
 			c.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
 		}
@@ -197,6 +215,7 @@ public class World {
 		b.vx = -10;
 		b.vy = 0;
 		b.beingEaten = false;
+		b.dead = false;
 //		Log.i("game", String.format("Baddy #%d created.", numBaddies));
 		numBaddies++;
 		return true;
@@ -205,7 +224,7 @@ public class World {
 	public void killGoneBaddies() {
 		for (int i = numBaddies - 1; i >= 0; i--) {
 			if ((baddies[i].x < -baddies[i].size) 
-					|| baddies[i].beingEaten) {
+					|| baddies[i].dead) {
 				for (int j = i; j < numBaddies-1; j++) {
 					baddies[j].copyFrom(baddies[j+1]);
 				}
@@ -215,7 +234,7 @@ public class World {
 		}
 	}
 	
-	public void updatePhysics(long msDeltaT) {
+	public void update(long msDeltaT) {
 		if (!metrics_initialized) return;
 		
 //		float d = dist(hero.x, hero.y, targetX, targetY);
@@ -252,7 +271,8 @@ public class World {
 				if ((hero.size > b.size) && !b.beingEaten) {
 					hero.eventEatsBaddy();
 					b.eventGetsEaten();
-				} else {
+				} 
+				if (hero.size <= b.size) {
 					hero.eventGetsEaten();
 					b.eventEatsHero();
 				}
@@ -264,6 +284,10 @@ public class World {
 		baddyCreationTimer.update(msDeltaT);
 		if (baddyCreationTimer.triggered()) {
 			addBaddy();
+		}
+		
+		for (int i = 0; i < numBaddies; i++) {
+			baddies[i].update(msDeltaT);
 		}
 	}
 	
