@@ -9,7 +9,13 @@ import android.util.Log;
 
 
 public class World {
-
+	public enum State {
+		BEFORE_START,
+		RUNNING,
+		GAME_OVER		
+	}
+	public State state;
+	
 	private static final float EPSILON = 0.01f;
 	private static final int MAX_BADDIES = 20;
 	private Random rnd;
@@ -47,6 +53,7 @@ public class World {
 		baddyCreationTimer = new Timer(2000);
 		rnd = new Random();
 		metrics_initialized = false;
+		state = State.BEFORE_START;
 		startGame();
 	}
 	
@@ -190,15 +197,18 @@ public class World {
 	public void draw(Canvas c) {
 		// draw world
 		c.drawRGB(50, 50, 50);
-
 		paint.setColor(android.graphics.Color.GREEN);
 		paint.setStyle(Style.STROKE);
 		c.drawRect(0f, 0f, mmWidth * pixelPerMm - 1, mmHeight * pixelPerMm - 1, paint);
 
-		hero.draw(c);		
-		heroHandle.draw(c);
-		for (int i = 0; i < numBaddies; i++) {
-			baddies[i].draw(c);
+		switch (state) {
+		case RUNNING:	
+			hero.draw(c);		
+			heroHandle.draw(c);
+			for (int i = 0; i < numBaddies; i++) {
+				baddies[i].draw(c);
+			}
+		default: {}
 		}
 	}
 
@@ -237,57 +247,70 @@ public class World {
 	public void update(long msDeltaT) {
 		if (!metrics_initialized) return;
 		
-//		float d = dist(hero.x, hero.y, targetX, targetY);
-//		if (d < EPSILON || d < mmpsHeroSpeed * msDeltaT / 1000) {
-//			//Log.i("game", String.format("<<<< %f, %f, %f", hero.x, hero.y, d));
-//			hero.x = targetX;
-//			hero.y = targetY;
-//		} else {
-//			//Log.i("game", String.format(">>>> %f, %f, %f", hero.x, hero.y, d));
-//			float dx = (targetX - hero.x) / d * mmpsHeroSpeed * msDeltaT / 1000;
-//			float dy = (targetY - hero.y) / d * mmpsHeroSpeed * msDeltaT / 1000;
-//			hero.x += dx;
-//			hero.y += dy;
-//		}
-
-		targetX = Math.min(mmWidth - HeroHandle.HANDLE_X_OFFSET - hero.size - 0.1f, targetX);
-		targetX = Math.max(0, targetX);
-		targetY = Math.min(mmHeight, targetY);
-		targetY = Math.max(0, targetY);
-		
-		heroHandle.setCoord(targetX, targetY);
-		
-		// move baddies
-		for (int i = 0; i < numBaddies; i++) {
-			Baddy b = baddies[i];
-			b.x += b.vx * msDeltaT / 1000;
-			b.y += b.vy * msDeltaT / 1000;
-		}
-		
-		// Collision handling.
-		for (int i = 0; i < numBaddies; i++) {
-			Baddy b = baddies[i];
-			if (hero.isTouching(b)) {
-				if ((hero.size > b.size) && !b.beingEaten) {
-					hero.eventEatsBaddy();
-					b.eventGetsEaten();
-				} 
-				if (hero.size <= b.size) {
-					hero.eventGetsEaten();
-					b.eventEatsHero();
+		switch (state) {
+		case BEFORE_START:
+			startGame();
+			state = State.RUNNING;
+			return;
+		case RUNNING:
+	//		float d = dist(hero.x, hero.y, targetX, targetY);
+	//		if (d < EPSILON || d < mmpsHeroSpeed * msDeltaT / 1000) {
+	//			//Log.i("game", String.format("<<<< %f, %f, %f", hero.x, hero.y, d));
+	//			hero.x = targetX;
+	//			hero.y = targetY;
+	//		} else {
+	//			//Log.i("game", String.format(">>>> %f, %f, %f", hero.x, hero.y, d));
+	//			float dx = (targetX - hero.x) / d * mmpsHeroSpeed * msDeltaT / 1000;
+	//			float dy = (targetY - hero.y) / d * mmpsHeroSpeed * msDeltaT / 1000;
+	//			hero.x += dx;
+	//			hero.y += dy;
+	//		}
+	
+			targetX = Math.min(mmWidth - HeroHandle.HANDLE_X_OFFSET - hero.size - 0.1f, targetX);
+			targetX = Math.max(0, targetX);
+			targetY = Math.min(mmHeight, targetY);
+			targetY = Math.max(0, targetY);
+			
+			heroHandle.setCoord(targetX, targetY);
+			
+			// move baddies
+			for (int i = 0; i < numBaddies; i++) {
+				Baddy b = baddies[i];
+				b.x += b.vx * msDeltaT / 1000;
+				b.y += b.vy * msDeltaT / 1000;
+			}
+			
+			// Collision handling.
+			for (int i = 0; i < numBaddies; i++) {
+				Baddy b = baddies[i];
+				if (hero.isTouching(b)) {
+					if ((hero.size > b.size) && !b.beingEaten) {
+						hero.eventEatsBaddy();
+						b.eventGetsEaten();
+					} 
+					if (hero.size <= b.size) {
+						hero.eventGetsEaten();
+						b.eventEatsHero();
+						if (hero.size < 1.5f) {
+							state = State.GAME_OVER;
+						}
+					}
 				}
 			}
-		}
-		
-		killGoneBaddies();
-		// create new baddies
-		baddyCreationTimer.update(msDeltaT);
-		if (baddyCreationTimer.triggered()) {
-			addBaddy();
-		}
-		
-		for (int i = 0; i < numBaddies; i++) {
-			baddies[i].update(msDeltaT);
+			
+			killGoneBaddies();
+			// create new baddies
+			baddyCreationTimer.update(msDeltaT);
+			if (baddyCreationTimer.triggered()) {
+				addBaddy();
+			}
+			
+			for (int i = 0; i < numBaddies; i++) {
+				baddies[i].update(msDeltaT);
+			}
+			return;
+		case GAME_OVER:
+			return;
 		}
 	}
 	

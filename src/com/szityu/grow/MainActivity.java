@@ -1,5 +1,7 @@
 package com.szityu.grow;
 
+import com.szityu.grow.World.State;
+
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
@@ -85,7 +87,8 @@ public class MainActivity extends Activity {
 					: View.GONE);
 			return true;
 		case R.id.menu_new_game:
-			world.startGame();
+			world.state = State.BEFORE_START;
+			return true;
 		default:
 			return super.onOptionsItemSelected(item);
 		}
