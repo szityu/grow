@@ -84,6 +84,8 @@ public class MainActivity extends Activity {
 			debugTextView.setVisibility(showDebugInfo ? View.VISIBLE
 					: View.GONE);
 			return true;
+		case R.id.menu_new_game:
+			world.startGame();
 		default:
 			return super.onOptionsItemSelected(item);
 		}
