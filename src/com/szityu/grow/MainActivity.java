@@ -1,20 +1,21 @@
 package com.szityu.grow;
 
-import com.szityu.grow.world.World;
-import com.szityu.grow.world.World.State;
-
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.Window;
 import android.widget.TextView;
+
+import com.szityu.grow.world.GraphicsObject;
+import com.szityu.grow.world.World;
+import com.szityu.grow.world.World.State;
 
 public class MainActivity extends Activity {
 	public GameThread gameThread;
 	public World world;
+	public GraphicsObject g;
 
 	
 	private GameSurfaceView surfaceView;
@@ -35,6 +36,9 @@ public class MainActivity extends Activity {
         gameThread.isRunning = true;
 		gameThread.parentActivity = this;
 
+		g = new GraphicsObject();
+		gameThread.g = g;
+		surfaceView.g = g;
         world = new World();
         gameThread.world = world;
         surfaceView.world = world;

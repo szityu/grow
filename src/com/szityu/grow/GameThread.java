@@ -1,14 +1,11 @@
 package com.szityu.grow;
 
 import android.graphics.Canvas;
-import android.graphics.Paint;
-import android.graphics.Paint.Style;
 import android.util.Log;
 import android.view.SurfaceHolder;
-import android.view.View;
 
+import com.szityu.grow.world.GraphicsObject;
 import com.szityu.grow.world.World;
-import com.szityu.grow.world.World.Baddy;
 
 public class GameThread extends Thread {
 
@@ -16,6 +13,7 @@ public class GameThread extends Thread {
 	public boolean isPaused = false;
 	public SurfaceHolder surfaceHolder;
 	public World world;
+	public GraphicsObject g;
 
 	public MainActivity parentActivity;
 	public DebugStats statsUpdateTime;
@@ -66,7 +64,8 @@ public class GameThread extends Thread {
 			c = surfaceHolder.lockCanvas(null);
 			synchronized (surfaceHolder) {
 				if (c != null) {
-					world.draw(c);
+					g.canvas = c;
+					world.draw(g);
 				}
 			}
 		} finally {

@@ -13,7 +13,7 @@ import android.graphics.Typeface;
 import android.util.Log;
 
 
-public class World implements WorldObject {
+public class World {
 	public enum State {
 		BEFORE_START,
 		RUNNING,
@@ -45,14 +45,11 @@ public class World implements WorldObject {
 	float pxMaxX;
 	float pxMaxY;
 	Paint paint = new Paint();
-
-	public GraphicsObject g;
 	
 	// controller variables
 	boolean control_locked;
 	
 	public World() {
-		g = new GraphicsObject();
 		hero = new Hero();
 		heroHandle = new HeroHandle(hero);
 		baddies = new Baddy[MAX_BADDIES];
@@ -102,11 +99,11 @@ public class World implements WorldObject {
 			size /= 1.1f;
 		}
 
-		public void draw(Canvas c) {
+		public void draw(GraphicsObject g) {
 			// draw hero
 			paint.setColor(android.graphics.Color.WHITE);
 			paint.setStyle(Style.FILL);
-			c.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
+			g.canvas.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
 		}
 
 		public void update(long msDeltaT) {
@@ -141,11 +138,11 @@ public class World implements WorldObject {
 			return false;
 		}
 
-		public void draw(Canvas c) {
+		public void draw(GraphicsObject g) {
 			// draw hero handle
 			paint.setColor(android.graphics.Color.YELLOW);
 			paint.setStyle(Style.STROKE);
-			c.drawCircle(x * pixelPerMm, y * pixelPerMm, HANDLE_RADIUS * pixelPerMm, paint);
+			g.canvas.drawCircle(x * pixelPerMm, y * pixelPerMm, HANDLE_RADIUS * pixelPerMm, paint);
 		}
 
 		public void update(long msDeltaT) {
@@ -195,14 +192,14 @@ public class World implements WorldObject {
 			}
 		}
 		
-		public void draw(Canvas c) {
+		public void draw(GraphicsObject g) {
 			// draw baddy
 			paint.setColor(android.graphics.Color.MAGENTA);
 			if (beingEaten) {
 				paint.setColor(android.graphics.Color.RED);				
 			}
 			paint.setStyle(Style.FILL);
-			c.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
+			g.canvas.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
 		}
 		
 		@Override
@@ -212,20 +209,19 @@ public class World implements WorldObject {
 	}
 	
 	
-	public void draw(Canvas c) {
-		g.canvas = c;
+	public void draw(GraphicsObject g) {
 		// draw world
-		c.drawRGB(50, 50, 50);
+		g.canvas.drawRGB(50, 50, 50);
 		paint.setColor(android.graphics.Color.GREEN);
 		paint.setStyle(Style.STROKE);
-		c.drawRect(0f, 0f, mmWidth * pixelPerMm - 1, mmHeight * pixelPerMm - 1, paint);
+		g.canvas.drawRect(0f, 0f, mmWidth * pixelPerMm - 1, mmHeight * pixelPerMm - 1, paint);
 		
 		switch (state) {
 		case RUNNING:	
-			hero.draw(c);		
-			heroHandle.draw(c);
+			hero.draw(g);		
+			heroHandle.draw(g);
 			for (int i = 0; i < numBaddies; i++) {
-				baddies[i].draw(c);
+				baddies[i].draw(g);
 			}
 		default: {}
 		}
@@ -350,7 +346,6 @@ public class World implements WorldObject {
 		this.mmWidth = mmWidth;
 		this.mmHeight = mmHeight;
 		this.pixelPerMm = pixelPerMm;
-		this.g.pixelPerMm = pixelPerMm;
 		
 		pxpsHeroSpeed = mmpsHeroSpeed * pixelPerMm;  // calculated from pixel density, do not modify directly.
 		metrics_initialized = true;

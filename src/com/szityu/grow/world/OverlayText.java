@@ -6,7 +6,7 @@ import android.graphics.Typeface;
 import android.graphics.Paint.Align;
 import android.util.Log;
 
-public class OverlayText {
+public class OverlayText implements WorldObject {
 	public String text;
 	public boolean visible;
 	public long msCountDown;

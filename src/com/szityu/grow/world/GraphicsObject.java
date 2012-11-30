@@ -11,7 +11,7 @@ public class GraphicsObject {
 	public Paint paint;
 	public Canvas canvas;
 
-	GraphicsObject() {
+	public GraphicsObject() {
 		paint = new Paint();
 	}
 }

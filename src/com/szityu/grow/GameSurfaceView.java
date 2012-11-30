@@ -1,19 +1,20 @@
 package com.szityu.grow;
 
-import com.szityu.grow.world.World;
-
 import android.content.Context;
 import android.content.res.Resources;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
+import com.szityu.grow.world.GraphicsObject;
+import com.szityu.grow.world.World;
+
 public class GameSurfaceView extends SurfaceView implements Callback {
 	public World world;
+	public GraphicsObject g;
 	
 	public GameSurfaceView(Context context, AttributeSet attrs) {
 		super(context, attrs);
@@ -25,7 +26,8 @@ public class GameSurfaceView extends SurfaceView implements Callback {
 	public void surfaceChanged(SurfaceHolder holder, int format, int width, int height) {
 		Resources r = getResources();
 		float px = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_MM, 1, r.getDisplayMetrics());
-		world.setMetrics(width/px, height/px, px);
+		world.setMetrics(width/px, height/px, px);		
+		g.pixelPerMm = px;
 	}
 
 	@Override
