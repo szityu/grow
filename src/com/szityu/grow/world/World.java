@@ -13,7 +13,7 @@ import android.graphics.Typeface;
 import android.util.Log;
 
 
-public class World {
+public class World implements WorldObject {
 	public enum State {
 		BEFORE_START,
 		RUNNING,
@@ -76,7 +76,7 @@ public class World {
 		control_locked = false;
 	}
 
-	public class Hero {
+	public class Hero implements WorldObject {
 		
 		// x and y coordinates are only set through the heroHandle.
 		public float x;
@@ -105,10 +105,13 @@ public class World {
 			paint.setStyle(Style.FILL);
 			c.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
 		}
+
+		public void update(long msDeltaT) {
+		}
 		
 	}
 	
-	public class HeroHandle {
+	public class HeroHandle implements WorldObject {
 		public final static int HANDLE_X_OFFSET = 20;
 		public final static int HANDLE_RADIUS = 5;
 
@@ -142,9 +145,12 @@ public class World {
 			c.drawCircle(x * pixelPerMm, y * pixelPerMm, HANDLE_RADIUS * pixelPerMm, paint);
 		}
 
+		public void update(long msDeltaT) {
+		}
+
 	}
 	
-	public class Baddy {
+	public class Baddy implements WorldObject {
 		// in mm
 		public float x;
 		public float y;
@@ -202,7 +208,7 @@ public class World {
 		}
 	}
 	
-	public class OverlayText {
+	public class OverlayText implements WorldObject {
 		public String text;
 		public boolean visible;
 		public long msCountDown;
