@@ -3,8 +3,11 @@ package com.szityu.grow;
 import java.util.Random;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
+import android.graphics.Typeface;
 import android.util.Log;
 
 
@@ -23,6 +26,7 @@ public class World {
 	public Hero hero;
 	public HeroHandle heroHandle;
 	public Baddy[] baddies;
+	public OverlayText mainText;
 	public Timer baddyCreationTimer;
 	public int numBaddies;
 	public float targetX;
@@ -50,6 +54,7 @@ public class World {
 		for (int i = 0; i < MAX_BADDIES; i++) {
 			baddies[i] = new Baddy();
 		}
+		mainText = new OverlayText();
 		baddyCreationTimer = new Timer(2000);
 		rnd = new Random();
 		metrics_initialized = false;
@@ -63,6 +68,7 @@ public class World {
 		numBaddies = 0;
 		setHeroCoord(30, 20);
 		hero.size = 3.0f;
+		mainText.showText("Go!", mmWidth / 2, mmHeight / 2, 1000);
 		
 		mmpsHeroSpeed = 5000.0f;				
 		control_locked = false;
@@ -194,13 +200,51 @@ public class World {
 		}
 	}
 	
+	public class OverlayText {
+		public String text;
+		public boolean visible;
+		public long msCountDown;
+		public float x;
+		public float y;
+		
+		public OverlayText() {
+			visible = false;
+			msCountDown = 0;
+		}
+		
+		public void showText(String text, float x, float y, long msDisplayTime) {
+			Log.i("text", "Showing: " + text);
+			this.text = text;
+			visible = true;
+			this.x = x;
+			this.y = y;
+			msCountDown = msDisplayTime;
+		}
+		
+		public void draw(Canvas c) {
+			if (!visible) return;
+			paint.setStyle(Paint.Style.FILL);
+			paint.setColor(Color.WHITE);
+			paint.setTextAlign(Align.CENTER);
+			paint.setTypeface(Typeface.DEFAULT_BOLD);
+			paint.setTextSize(10 * pixelPerMm);
+			c.drawText(text, x * pixelPerMm, y * pixelPerMm, paint);
+		}
+		
+		public void update(long msDeltaT) {
+			if (!visible) return;
+			if (msCountDown <= 0) visible = false;
+			msCountDown -= msDeltaT;
+		}
+	}
+	
 	public void draw(Canvas c) {
 		// draw world
 		c.drawRGB(50, 50, 50);
 		paint.setColor(android.graphics.Color.GREEN);
 		paint.setStyle(Style.STROKE);
 		c.drawRect(0f, 0f, mmWidth * pixelPerMm - 1, mmHeight * pixelPerMm - 1, paint);
-
+		
 		switch (state) {
 		case RUNNING:	
 			hero.draw(c);		
@@ -210,6 +254,7 @@ public class World {
 			}
 		default: {}
 		}
+		mainText.draw(c);
 	}
 
 	public boolean addBaddy() {
@@ -247,6 +292,7 @@ public class World {
 	public void update(long msDeltaT) {
 		if (!metrics_initialized) return;
 		
+		mainText.update(msDeltaT);
 		switch (state) {
 		case BEFORE_START:
 			startGame();
@@ -293,6 +339,7 @@ public class World {
 						b.eventEatsHero();
 						if (hero.size < 1.5f) {
 							state = State.GAME_OVER;
+							mainText.showText("Game over", mmWidth / 2, mmHeight / 2, 1000 * 86400);
 						}
 					}
 				}
