@@ -1,6 +1,8 @@
-package com.szityu.grow;
+package com.szityu.grow.world;
 
 import java.util.Random;
+
+import com.szityu.grow.Timer;
 
 import android.graphics.Canvas;
 import android.graphics.Color;

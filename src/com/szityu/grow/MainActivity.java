@@ -1,6 +1,7 @@
 package com.szityu.grow;
 
-import com.szityu.grow.World.State;
+import com.szityu.grow.world.World;
+import com.szityu.grow.world.World.State;
 
 import android.app.Activity;
 import android.os.Bundle;

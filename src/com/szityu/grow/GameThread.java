@@ -7,7 +7,8 @@ import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.View;
 
-import com.szityu.grow.World.Baddy;
+import com.szityu.grow.world.World;
+import com.szityu.grow.world.World.Baddy;
 
 public class GameThread extends Thread {
 
