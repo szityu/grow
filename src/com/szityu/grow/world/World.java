@@ -2,18 +2,13 @@ package com.szityu.grow.world;
 
 import java.util.Random;
 
-import com.szityu.grow.Timer;
-
-import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
-import android.graphics.Paint.Align;
 import android.graphics.Paint.Style;
-import android.graphics.Typeface;
 import android.util.Log;
 
+import com.szityu.grow.Timer;
 
-public class World {
+public class World implements WorldObject {
 	public enum State {
 		BEFORE_START,
 		RUNNING,
@@ -75,140 +70,7 @@ public class World {
 		mmpsHeroSpeed = 5000.0f;				
 		control_locked = false;
 	}
-
-	public class Hero implements WorldObject {
 		
-		// x and y coordinates are only set through the heroHandle.
-		public float x;
-		public float y;
-		public float size;
-		
-		public Hero() {
-			size = 3.0f;
-		}
-		
-		public boolean isTouching(Baddy b) {
-			return (dist(b.x, b.y, x, y) < b.size + size);
-		}
-		
-		public void eventEatsBaddy() {
-			size *= 1.1f;
-		}
-
-		public void eventGetsEaten() {
-			size /= 1.1f;
-		}
-
-		public void draw(GraphicsObject g) {
-			// draw hero
-			paint.setColor(android.graphics.Color.WHITE);
-			paint.setStyle(Style.FILL);
-			g.canvas.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
-		}
-
-		public void update(long msDeltaT) {
-		}
-		
-	}
-	
-	public class HeroHandle implements WorldObject {
-		public final static int HANDLE_X_OFFSET = 20;
-		public final static int HANDLE_RADIUS = 5;
-
-		private float x;
-		private float y;
-		public Hero hero;
-		
-		public HeroHandle(Hero hero) {
-			this.hero = hero;
-			setCoord(0, 0);
-		}
-		
-		public void setCoord(float mmX, float mmY) {
-			x = mmX;
-			y = mmY;
-			hero.x = x + HANDLE_X_OFFSET;
-			hero.y = y;
-		}
-		
-		public boolean isWithin(float mmX, float mmY) {
-			if (dist(mmX, mmY, x, y) < HANDLE_RADIUS) {
-				return true;
-			}
-			return false;
-		}
-
-		public void draw(GraphicsObject g) {
-			// draw hero handle
-			paint.setColor(android.graphics.Color.YELLOW);
-			paint.setStyle(Style.STROKE);
-			g.canvas.drawCircle(x * pixelPerMm, y * pixelPerMm, HANDLE_RADIUS * pixelPerMm, paint);
-		}
-
-		public void update(long msDeltaT) {
-		}
-
-	}
-	
-	public class Baddy implements WorldObject {
-		// in mm
-		public float x;
-		public float y;
-		public float size;
-		// in mm/s
-		public float vx;
-		public float vy;
-		
-		public boolean beingEaten;
-		public boolean dead;
-		private static final float DEAD_AT_SIZE = 0.5f;
-
-		private float vShrink;
-		
-		public void copyFrom(Baddy b) {
-			x = b.x;
-			y = b.y;
-			size = b.size;
-			vx = b.vx;
-			vy = b.vy;
-			beingEaten = b.beingEaten;
-			dead = b.dead;
-		}
-		
-		public void eventEatsHero() {
-		}
-
-		public void eventGetsEaten() {
-			beingEaten = true;
-			vShrink = size / 0.3f;
-		}
-
-		public void update(long msDeltaT) {
-			if (beingEaten) {
-				size -= vShrink * msDeltaT / 1000;
-				if (size < DEAD_AT_SIZE) {
-					dead = true;
-				}
-			}
-		}
-		
-		public void draw(GraphicsObject g) {
-			// draw baddy
-			paint.setColor(android.graphics.Color.MAGENTA);
-			if (beingEaten) {
-				paint.setColor(android.graphics.Color.RED);				
-			}
-			paint.setStyle(Style.FILL);
-			g.canvas.drawCircle(x * pixelPerMm, y * pixelPerMm, size * pixelPerMm, paint);
-		}
-		
-		@Override
-		public String toString() {
-			return "Baddy [x=" + x + ", y=" + y + ", size=" + size + "]";
-		}
-	}
-	
-	
 	public void draw(GraphicsObject g) {
 		// draw world
 		g.canvas.drawRGB(50, 50, 50);
@@ -331,11 +193,7 @@ public class World {
 			return;
 		}
 	}
-	
-	private float dist(float x1, float y1, float x2, float y2) {
-		return android.util.FloatMath.sqrt((x1-x2)*(x1-x2) + (y1-y2)*(y1-y2));
-	}
-	
+		
 	private void setHeroCoord(float mmX, float mmY) {
 		targetX = mmX;
 		targetY = mmY;
